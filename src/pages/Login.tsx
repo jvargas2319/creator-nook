@@ -16,14 +16,20 @@ const Login = () => {
       if (event === "SIGNED_IN" && session) {
         navigate("/");
       }
+      if (event === "USER_UPDATED") {
+        supabase.auth.getSession().then(({ error }) => {
+          if (error) {
+            setError(error.message);
+          }
+        });
+      }
+      if (event === "SIGNED_OUT") {
+        setError(""); // Clear errors on sign out
+      }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const handleError = (error: AuthError) => {
-    setError(error.message);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -50,7 +56,6 @@ const Login = () => {
                 },
               }}
               providers={[]}
-              onError={handleError}
             />
           </div>
         </div>
