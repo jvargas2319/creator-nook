@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, RefreshCw } from "lucide-react";
 import { CreatorDashboard } from "@/components/dashboard/CreatorDashboard";
 import { SubscriberDashboard } from "@/components/dashboard/SubscriberDashboard";
+import { Suggestions } from "@/components/dashboard/Suggestions";
 import type { Profile, Content } from "@/components/dashboard/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -89,42 +90,50 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <Tabs defaultValue="all" className="mb-8">
-          <TabsList className="bg-[#1A1A1A] border-b border-gray-800 p-0 h-auto">
-            <TabsTrigger
-              value="all"
-              className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-              onClick={() => setActiveTab("all")}
-            >
-              All
-            </TabsTrigger>
-            <TabsTrigger
-              value="subscribed"
-              className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-              onClick={() => setActiveTab("subscribed")}
-            >
-              Subscribed
-            </TabsTrigger>
-            <TabsTrigger
-              value="for-you"
-              className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-              onClick={() => setActiveTab("for-you")}
-            >
-              For You
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="all" className="mb-8">
+              <TabsList className="bg-[#1A1A1A] border-b border-gray-800 p-0 h-auto">
+                <TabsTrigger
+                  value="all"
+                  className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
+                  onClick={() => setActiveTab("all")}
+                >
+                  All
+                </TabsTrigger>
+                <TabsTrigger
+                  value="subscribed"
+                  className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
+                  onClick={() => setActiveTab("subscribed")}
+                >
+                  Subscribed
+                </TabsTrigger>
+                <TabsTrigger
+                  value="for-you"
+                  className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
+                  onClick={() => setActiveTab("for-you")}
+                >
+                  For You
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-        {profile?.is_creator ? (
-          <CreatorDashboard
-            profile={profile}
-            content={content}
-            showCreateForm={showCreateForm}
-            setShowCreateForm={setShowCreateForm}
-          />
-        ) : (
-          <SubscriberDashboard profile={profile} />
-        )}
+            {profile?.is_creator ? (
+              <CreatorDashboard
+                profile={profile}
+                content={content}
+                showCreateForm={showCreateForm}
+                setShowCreateForm={setShowCreateForm}
+              />
+            ) : (
+              <SubscriberDashboard profile={profile} />
+            )}
+          </div>
+          
+          <div className="space-y-8">
+            <Suggestions />
+          </div>
+        </div>
       </main>
     </div>
   );
