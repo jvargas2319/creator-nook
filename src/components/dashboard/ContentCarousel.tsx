@@ -22,49 +22,73 @@ interface ContentCarouselProps {
 
 export const ContentCarousel = ({ content }: ContentCarouselProps) => {
   if (content.length === 0) {
-    return <p className="text-gray-400">No content yet. Start creating!</p>;
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((_, index) => (
+          <Card key={index} className="bg-[#1A1A1A] border-gray-800">
+            <CardContent className="p-4">
+              <img
+                src={placeholderImages[index % placeholderImages.length]}
+                alt="Placeholder"
+                className="w-full h-48 object-cover rounded-lg mb-4"
+              />
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-white">Sample Content</h3>
+                <p className="text-sm text-gray-400">
+                  This is a placeholder for your future content. Start creating!
+                </p>
+                <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>0</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>0</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
   }
 
   return (
-    <Carousel className="w-full">
-      <CarouselContent>
-        {content.map((item, index) => (
-          <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
-            <Card className="bg-[#2A2A2A] border-gray-700">
-              <CardContent className="p-4">
-                <img
-                  src={placeholderImages[index % placeholderImages.length]}
-                  alt={item.title}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg text-white">{item.title}</h3>
-                    {item.is_premium && (
-                      <span className="px-2 py-1 text-xs bg-primary text-white rounded">
-                        Premium
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-400">{item.description}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>0 subscribers</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageCircle className="h-4 w-4" />
-                      <span>0 comments</span>
-                    </div>
-                  </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {content.map((item, index) => (
+        <Card key={item.id} className="bg-[#1A1A1A] border-gray-800">
+          <CardContent className="p-4">
+            <img
+              src={placeholderImages[index % placeholderImages.length]}
+              alt={item.title}
+              className="w-full h-48 object-cover rounded-lg mb-4"
+            />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg text-white">{item.title}</h3>
+                {item.is_premium && (
+                  <span className="px-2 py-1 text-xs bg-primary text-white rounded">
+                    Premium
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-400">{item.description}</p>
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span>0</span>
                 </div>
-              </CardContent>
-            </Card>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious className="bg-primary text-white" />
-      <CarouselNext className="bg-primary text-white" />
-    </Carousel>
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="h-4 w-4" />
+                  <span>0</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
