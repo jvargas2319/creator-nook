@@ -3,7 +3,9 @@ import { Navigation } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { CreateContentForm } from "@/components/CreateContentForm";
+import { Button } from "@/components/ui/button";
 
 interface Profile {
   id: string;
@@ -25,6 +27,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -88,11 +91,25 @@ const Dashboard = () => {
         {profile?.is_creator ? (
           <div className="grid gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Your Content</CardTitle>
+                <Button
+                  onClick={() => setShowCreateForm(!showCreateForm)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Content
+                </Button>
               </CardHeader>
               <CardContent>
-                {content.length === 0 ? (
+                {showCreateForm && (
+                  <div className="mb-6">
+                    <CreateContentForm />
+                  </div>
+                )}
+                
+                {content.length === 0 && !showCreateForm ? (
                   <p className="text-muted-foreground">No content yet. Start creating!</p>
                 ) : (
                   <div className="grid gap-4">
