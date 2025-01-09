@@ -2,17 +2,43 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement signup logic
-    console.log("Signup attempt", { email, password, name });
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+        },
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Successfully signed up! Please check your email to verify your account.");
+        navigate("/login");
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,8 +87,12 @@ export function SignupForm() {
               required
             />
           </div>
-          <Button type="submit" className="w-full bg-primary-700 hover:bg-primary-800">
-            Sign Up
+          <Button 
+            type="submit" 
+            className="w-full bg-primary-700 hover:bg-primary-800"
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Sign Up"}
           </Button>
           <p className="text-center text-sm text-gray-600">
             Already have an account?{" "}
