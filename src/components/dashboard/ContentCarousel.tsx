@@ -1,10 +1,3 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, MessageCircle } from "lucide-react";
 import type { Content } from "./types";
@@ -23,14 +16,14 @@ interface ContentCarouselProps {
 export const ContentCarousel = ({ content }: ContentCarouselProps) => {
   if (content.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-6 max-w-2xl mx-auto">
         {[1, 2, 3].map((_, index) => (
           <Card key={index} className="bg-[#1A1A1A] border-gray-800">
-            <CardContent className="p-4">
+            <CardContent className="p-6">
               <img
                 src={placeholderImages[index % placeholderImages.length]}
                 alt="Placeholder"
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full aspect-video object-cover rounded-lg mb-4"
               />
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg text-white">Sample Content</h3>
@@ -56,14 +49,14 @@ export const ContentCarousel = ({ content }: ContentCarouselProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-6 max-w-2xl mx-auto">
       {content.map((item, index) => (
         <Card key={item.id} className="bg-[#1A1A1A] border-gray-800">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <img
               src={placeholderImages[index % placeholderImages.length]}
               alt={item.title}
-              className="w-full h-48 object-cover rounded-lg mb-4"
+              className="w-full aspect-video object-cover rounded-lg mb-4"
             />
             <div className="space-y-2">
               <div className="flex items-center justify-between">
