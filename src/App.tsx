@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               </PrivateRoute>
             }
           />
+          <Route path="/profile/:username" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
