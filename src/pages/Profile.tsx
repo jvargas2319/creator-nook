@@ -17,10 +17,10 @@ const ProfilePage = () => {
         .from("profiles")
         .select("*")
         .eq("username", username)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Profile;
+      return data as Profile | null;
     },
   });
 

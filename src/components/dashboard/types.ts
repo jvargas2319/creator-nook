@@ -4,6 +4,8 @@ export interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   is_creator: boolean | null;
+  bio: string | null;
+  website: string | null;
 }
 
 export interface Content {
