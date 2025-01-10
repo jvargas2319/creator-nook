@@ -3,6 +3,7 @@ export interface Profile {
   username: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  banner_url: string | null;
   is_creator: boolean | null;
   bio: string | null;
   website: string | null;
