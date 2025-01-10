@@ -17,6 +17,32 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
 
+  const fetchContent = async (userId: string, filter: string) => {
+    try {
+      let query = supabase.from("content").select("*");
+
+      if (filter === "subscribed") {
+        // Add subscribed content filter logic here
+        // For now, we'll just show creator's content as an example
+        query = query.eq("creator_id", userId);
+      } else if (filter === "for-you") {
+        // Add personalized content filter logic here
+        // For now, we'll show the latest content as an example
+        query = query.order("published_at", { ascending: false }).limit(5);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      setContent(data || []);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error fetching content",
+        description: error.message,
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -35,16 +61,7 @@ const Dashboard = () => {
         if (profileError) throw profileError;
         setProfile(profileData);
 
-        if (profileData.is_creator) {
-          const { data: contentData, error: contentError } = await supabase
-            .from("content")
-            .select("*")
-            .eq("creator_id", session.user.id)
-            .order("created_at", { ascending: false });
-
-          if (contentError) throw contentError;
-          setContent(contentData);
-        }
+        await fetchContent(session.user.id, activeTab);
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -57,7 +74,13 @@ const Dashboard = () => {
     };
 
     fetchProfile();
-  }, [toast]);
+  }, [toast, activeTab]);
+
+  const handleRefresh = async () => {
+    if (profile) {
+      await fetchContent(profile.id, activeTab);
+    }
+  };
 
   if (loading) {
     return (
@@ -85,33 +108,33 @@ const Dashboard = () => {
               {profile?.full_name || profile?.username}
             </h1>
           </div>
-          <button className="p-2 hover:bg-gray-800 rounded-full">
+          <button 
+            className="p-2 hover:bg-gray-800 rounded-full"
+            onClick={handleRefresh}
+          >
             <RefreshCw className="h-5 w-5 text-gray-400" />
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Tabs defaultValue="all" className="mb-8">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
               <TabsList className="bg-[#1A1A1A] border-b border-gray-800 p-0 h-auto">
                 <TabsTrigger
                   value="all"
                   className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-                  onClick={() => setActiveTab("all")}
                 >
                   All
                 </TabsTrigger>
                 <TabsTrigger
                   value="subscribed"
                   className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-                  onClick={() => setActiveTab("subscribed")}
                 >
                   Subscribed
                 </TabsTrigger>
                 <TabsTrigger
                   value="for-you"
                   className="px-6 py-3 data-[state=active]:bg-transparent data-[state=active]:text-primary"
-                  onClick={() => setActiveTab("for-you")}
                 >
                   For You
                 </TabsTrigger>

@@ -33,34 +33,44 @@ export function Navigation() {
   };
 
   return (
-    <nav className="border-b bg-white">
+    <nav className="border-b border-gray-800 bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-primary-700">
+            <Link to="/" className="text-2xl font-bold text-primary-400">
               ContentSub
             </Link>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/explore">
-              <Button variant="ghost">Explore</Button>
+              <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
+                Explore
+              </Button>
             </Link>
             {user ? (
               <>
                 <Link to="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
+                  <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
+                    Dashboard
+                  </Button>
                 </Link>
-                <Button variant="ghost" onClick={handleSignOut}>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleSignOut}
+                  className="text-gray-300 hover:text-white hover:bg-gray-800"
+                >
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost">Login</Button>
+                  <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
+                    Login
+                  </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button variant="default" className="bg-primary-700 hover:bg-primary-800">
+                  <Button variant="default" className="bg-primary-600 hover:bg-primary-700 text-white">
                     Sign Up
                   </Button>
                 </Link>
