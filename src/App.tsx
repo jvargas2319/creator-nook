@@ -35,6 +35,34 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+const ProfileRoute = () => {
+  const [username, setUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+        
+        setUsername(profile?.username);
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) return null;
+  if (!username) return <Navigate to="/login" />;
+
+  return <Navigate to={`/profile/${username}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -53,6 +81,7 @@ const App = () => (
               </PrivateRoute>
             }
           />
+          <Route path="/profile" element={<ProfileRoute />} />
           <Route path="/profile/:username" element={<Profile />} />
         </Routes>
       </BrowserRouter>
