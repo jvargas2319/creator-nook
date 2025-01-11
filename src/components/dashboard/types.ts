@@ -14,6 +14,7 @@ export interface Content {
   title: string;
   description: string | null;
   content_type: string;
+  content_url: string | null;
   is_premium: boolean | null;
   published_at: string | null;
 }
