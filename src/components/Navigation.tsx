@@ -1,6 +1,24 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navigation() {
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      
+      return data;
+    },
+  });
+
   return (
     <nav className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4">
@@ -17,7 +35,10 @@ export function Navigation() {
             <Link to="/settings" className="text-gray-300 hover:text-white">
               Settings
             </Link>
-            <Link to="/profile" className="text-gray-300 hover:text-white">
+            <Link 
+              to={profile?.username ? `/profile/${profile.username}` : "/settings"} 
+              className="text-gray-300 hover:text-white"
+            >
               Profile
             </Link>
             <Link to="/logout" className="text-gray-300 hover:text-white">
