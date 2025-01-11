@@ -6,7 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Navigation } from "@/components/Navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Link2, MessageSquare, Image, Globe } from "lucide-react";
+import { MapPin, Search, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Profile, Content } from "@/components/dashboard/types";
 import { ContentCarousel } from "@/components/dashboard/ContentCarousel";
 
@@ -46,13 +48,8 @@ const ProfilePage = () => {
     return (
       <div className="min-h-screen bg-gray-900">
         <Navigation />
-        <div className="w-full h-48 bg-gray-800 animate-pulse" />
-        <div className="container max-w-4xl mx-auto -mt-24 px-4">
-          <div className="flex flex-col items-center space-y-4">
-            <Skeleton className="h-32 w-32 rounded-full" />
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-64" />
-          </div>
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <Skeleton className="h-32 w-full" />
         </div>
       </div>
     );
@@ -76,116 +73,72 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-gray-900">
       <Navigation />
       
-      {/* Banner Image */}
-      <div 
-        className="w-full h-48 bg-cover bg-center bg-gray-800"
-        style={profile.banner_url ? { backgroundImage: `url(${profile.banner_url})` } : {}}
-      />
-      
-      {/* Profile Section */}
-      <div className="container max-w-4xl mx-auto px-4">
-        <div className="relative -mt-24 mb-8">
-          <div className="flex flex-col items-center space-y-4">
-            <Avatar className="h-32 w-32 border-4 border-gray-900">
-              <AvatarImage src={profile.avatar_url || undefined} />
-              <AvatarFallback className="text-2xl">
-                {profile.full_name?.[0] || profile.username?.[0] || "?"}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-white">
-                {profile.full_name || profile.username}
-                {profile.is_creator && (
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-500 text-white">
-                    Creator
-                  </span>
-                )}
-              </h1>
-              
-              <div className="flex items-center justify-center gap-4 mt-2 text-gray-400">
-                {profile.website && (
-                  <a
-                    href={profile.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-primary-400"
-                  >
-                    <Globe className="h-4 w-4 mr-1" />
-                    Website
-                  </a>
-                )}
-              </div>
-
-              {profile.bio && (
-                <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
-                  {profile.bio}
-                </p>
-              )}
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-8">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-gray-400">
+              <MapPin className="h-4 w-4" />
+              <span>Miami</span>
             </div>
+            <Button variant="link" className="text-blue-400 p-0">
+              Show more
+            </Button>
+          </div>
+          <div className="text-gray-400">
+            Daily activity
           </div>
         </div>
 
-        {/* Tabs Section */}
-        <Tabs defaultValue="about" className="mt-8">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
-            <TabsTrigger value="about" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              About
-            </TabsTrigger>
-            <TabsTrigger value="links" className="flex items-center gap-2">
-              <Link2 className="h-4 w-4" />
-              Links
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Posts
-            </TabsTrigger>
-            <TabsTrigger value="media" className="flex items-center gap-2">
-              <Image className="h-4 w-4" />
-              Media
-            </TabsTrigger>
+        {/* Subscription Tiers */}
+        <div className="space-y-6 mb-8">
+          {/* My Fan Tier */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-white">My fan 😊: Limited offer First Month 50% Off!</h3>
+              </div>
+              <p className="text-sm text-gray-400 mb-4">Offer ends Jun 6</p>
+              <Button className="w-full bg-blue-500 hover:bg-blue-600">
+                My fan 😊 1 Month - $5 (First Month 50% Off!)
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* VIP Fan Tier */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-white">VIP Fan 😍: Limited offer First Month 36.67% Off!</h3>
+              </div>
+              <p className="text-sm text-gray-400 mb-4">Offer ends May 9</p>
+              <Button className="w-full bg-blue-500 hover:bg-blue-600">
+                VIP Fan 😍 1 Month - $19 (First Month 36.67% Off!)
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Content Tabs */}
+        <Tabs defaultValue="posts" className="mt-8">
+          <TabsList className="w-full bg-gray-800">
+            <TabsTrigger value="posts" className="flex-1">Posts</TabsTrigger>
+            <TabsTrigger value="media" className="flex-1">Media</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="about" className="mt-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">About</h3>
-                <div className="space-y-4 text-gray-400">
-                  {profile.bio ? (
-                    <p>{profile.bio}</p>
-                  ) : (
-                    <p className="italic">No bio available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="links" className="mt-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Links</h3>
-                <div className="space-y-4">
-                  {profile.website ? (
-                    <a
-                      href={profile.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-primary-400 hover:text-primary-300"
-                    >
-                      <Globe className="h-4 w-4 mr-2" />
-                      {profile.website}
-                    </a>
-                  ) : (
-                    <p className="text-gray-400 italic">No links available</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="posts" className="mt-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search Timeline"
+                  className="pl-10 bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+              <Button variant="ghost" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
             {isLoadingContent ? (
               <div className="space-y-4">
                 <Skeleton className="h-32 w-full" />
@@ -197,28 +150,17 @@ const ProfilePage = () => {
           </TabsContent>
 
           <TabsContent value="media" className="mt-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {content?.filter(item => item.content_type === "image").length ? (
-                    content
-                      .filter(item => item.content_type === "image")
-                      .map(item => (
-                        <div key={item.id} className="aspect-square bg-gray-700 rounded-lg overflow-hidden">
-                          <img
-                            src="/placeholder.svg"
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))
-                  ) : (
-                    <p className="text-gray-400 italic col-span-full">No media available</p>
-                  )}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {content?.filter(item => item.content_type === "image").map(item => (
+                <div key={item.id} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                  <img
+                    src={item.content_url || "/placeholder.svg"}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
