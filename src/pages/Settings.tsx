@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Camera, ImageIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { Profile } from "@/components/dashboard/types";
 
 type FormData = {
@@ -196,35 +197,63 @@ const SettingsPage = () => {
               <div>
                 <h2 className="text-lg font-semibold text-white mb-4">Profile Images</h2>
                 <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="avatar" className="text-white mb-2 block">Profile Picture</Label>
-                    <div className="relative group">
-                      <img
-                        src={profile?.avatar_url || "/placeholder.svg"}
-                        alt="Profile"
-                        className="w-32 h-32 rounded-full object-cover mb-2"
-                      />
+                  <div className="space-y-4">
+                    <Label htmlFor="avatar" className="text-white">Profile Picture</Label>
+                    <div className="relative group cursor-pointer">
+                      <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-800 border-2 border-dashed border-gray-600 hover:border-primary transition-colors">
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Camera className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <div className="text-white text-sm text-center px-2">
+                            <Camera className="w-6 h-6 mx-auto mb-1" />
+                            Click to change
+                          </div>
+                        </div>
+                      </div>
                       <Input
                         id="avatar"
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleImageUpload(e, 'avatar')}
                         disabled={uploading}
-                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        className="absolute inset-0 opacity-0 cursor-pointer w-32 h-32"
                       />
-                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span className="text-white text-sm">Change</span>
-                      </div>
                     </div>
+                    <p className="text-sm text-gray-400">
+                      Recommended: Square image, at least 400x400px
+                    </p>
                   </div>
-                  <div>
-                    <Label htmlFor="banner" className="text-white mb-2 block">Banner Image</Label>
-                    <div className="relative group">
-                      <img
-                        src={profile?.banner_url || "/placeholder.svg"}
-                        alt="Banner"
-                        className="w-full h-32 rounded-lg object-cover mb-2"
-                      />
+                  <div className="space-y-4">
+                    <Label htmlFor="banner" className="text-white">Banner Image</Label>
+                    <div className="relative group cursor-pointer">
+                      <div className="relative w-full h-32 rounded-lg overflow-hidden bg-gray-800 border-2 border-dashed border-gray-600 hover:border-primary transition-colors">
+                        {profile?.banner_url ? (
+                          <img
+                            src={profile.banner_url}
+                            alt="Banner"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <ImageIcon className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <div className="text-white text-sm text-center px-2">
+                            <ImageIcon className="w-6 h-6 mx-auto mb-1" />
+                            Click to change
+                          </div>
+                        </div>
+                      </div>
                       <Input
                         id="banner"
                         type="file"
@@ -233,10 +262,10 @@ const SettingsPage = () => {
                         disabled={uploading}
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
-                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span className="text-white text-sm">Change</span>
-                      </div>
                     </div>
+                    <p className="text-sm text-gray-400">
+                      Recommended: 1200x400px image for best display
+                    </p>
                   </div>
                 </div>
               </div>
