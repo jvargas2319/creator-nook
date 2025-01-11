@@ -5,8 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Navigation } from "@/components/Navigation";
-import { MapPin, Mail, DollarSign, Calendar } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Link2, MessageSquare, Image, Globe } from "lucide-react";
 import type { Profile, Content } from "@/components/dashboard/types";
+import { ContentCarousel } from "@/components/dashboard/ContentCarousel";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -109,8 +111,8 @@ const ProfilePage = () => {
                     rel="noopener noreferrer"
                     className="flex items-center hover:text-primary-400"
                   >
-                    <Mail className="h-4 w-4 mr-1" />
-                    Contact
+                    <Globe className="h-4 w-4 mr-1" />
+                    Website
                   </a>
                 )}
               </div>
@@ -124,55 +126,101 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Content Grid */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">Content</h2>
-          </div>
+        {/* Tabs Section */}
+        <Tabs defaultValue="about" className="mt-8">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-800">
+            <TabsTrigger value="about" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              About
+            </TabsTrigger>
+            <TabsTrigger value="links" className="flex items-center gap-2">
+              <Link2 className="h-4 w-4" />
+              Links
+            </TabsTrigger>
+            <TabsTrigger value="posts" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Posts
+            </TabsTrigger>
+            <TabsTrigger value="media" className="flex items-center gap-2">
+              <Image className="h-4 w-4" />
+              Media
+            </TabsTrigger>
+          </TabsList>
 
-          {isLoadingContent ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="aspect-video w-full" />
-              ))}
-            </div>
-          ) : content?.length === 0 ? (
-            <p className="text-center text-gray-400 py-8">No content yet</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {content?.map((item) => (
-                <Card key={item.id} className="bg-gray-800 border-gray-700 overflow-hidden group">
-                  <CardContent className="p-0">
-                    <div className="relative aspect-video">
-                      <img
-                        src="/placeholder.svg"
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                      />
-                      {item.is_premium && (
-                        <div className="absolute top-2 right-2">
-                          <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs">
-                            Premium
-                          </span>
+          <TabsContent value="about" className="mt-6">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">About</h3>
+                <div className="space-y-4 text-gray-400">
+                  {profile.bio ? (
+                    <p>{profile.bio}</p>
+                  ) : (
+                    <p className="italic">No bio available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="links" className="mt-6">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Links</h3>
+                <div className="space-y-4">
+                  {profile.website ? (
+                    <a
+                      href={profile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-primary-400 hover:text-primary-300"
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      {profile.website}
+                    </a>
+                  ) : (
+                    <p className="text-gray-400 italic">No links available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="posts" className="mt-6">
+            {isLoadingContent ? (
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-32 w-full" />
+              </div>
+            ) : (
+              <ContentCarousel content={content || []} />
+            )}
+          </TabsContent>
+
+          <TabsContent value="media" className="mt-6">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {content?.filter(item => item.content_type === "image").length ? (
+                    content
+                      .filter(item => item.content_type === "image")
+                      .map(item => (
+                        <div key={item.id} className="aspect-square bg-gray-700 rounded-lg overflow-hidden">
+                          <img
+                            src="/placeholder.svg"
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
-                        {item.title}
-                      </h3>
-                      {item.description && (
-                        <p className="text-gray-400 text-sm mt-1 line-clamp-2">
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                      ))
+                  ) : (
+                    <p className="text-gray-400 italic col-span-full">No media available</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
