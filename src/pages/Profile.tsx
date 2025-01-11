@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Navigation } from "@/components/Navigation";
+import { MapPin, Mail, DollarSign, Calendar } from "lucide-react";
 import type { Profile, Content } from "@/components/dashboard/types";
 
 const ProfilePage = () => {
@@ -43,9 +44,10 @@ const ProfilePage = () => {
     return (
       <div className="min-h-screen bg-gray-900">
         <Navigation />
-        <div className="container max-w-4xl mx-auto py-8">
+        <div className="w-full h-48 bg-gray-800 animate-pulse" />
+        <div className="container max-w-4xl mx-auto -mt-24 px-4">
           <div className="flex flex-col items-center space-y-4">
-            <Skeleton className="h-24 w-24 rounded-full" />
+            <Skeleton className="h-32 w-32 rounded-full" />
             <Skeleton className="h-8 w-48" />
             <Skeleton className="h-4 w-64" />
           </div>
@@ -60,7 +62,9 @@ const ProfilePage = () => {
         <Navigation />
         <div className="container max-w-4xl mx-auto py-32 text-center">
           <h1 className="text-4xl font-bold text-white mb-4">Profile not found</h1>
-          <p className="text-gray-400">The profile you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-400">
+            The profile you're looking for doesn't exist or has been removed.
+          </p>
         </div>
       </div>
     );
@@ -69,67 +73,98 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       <Navigation />
-      <div className="container max-w-4xl mx-auto py-8">
-        <div className="flex flex-col items-center space-y-6">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={profile.avatar_url || undefined} />
-            <AvatarFallback>
-              {profile.full_name?.[0] || profile.username?.[0] || "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">
-              {profile.full_name || profile.username}
-            </h1>
-            {profile.bio && (
-              <p className="text-gray-400 mt-2">{profile.bio}</p>
-            )}
-            {profile.website && (
-              <a
-                href={profile.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-400 hover:text-primary-300 mt-2 block"
-              >
-                {profile.website}
-              </a>
-            )}
+      
+      {/* Banner Image */}
+      <div 
+        className="w-full h-48 bg-cover bg-center bg-gray-800"
+        style={profile.banner_url ? { backgroundImage: `url(${profile.banner_url})` } : {}}
+      />
+      
+      {/* Profile Section */}
+      <div className="container max-w-4xl mx-auto px-4">
+        <div className="relative -mt-24 mb-8">
+          <div className="flex flex-col items-center space-y-4">
+            <Avatar className="h-32 w-32 border-4 border-gray-900">
+              <AvatarImage src={profile.avatar_url || undefined} />
+              <AvatarFallback className="text-2xl">
+                {profile.full_name?.[0] || profile.username?.[0] || "?"}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-white">
+                {profile.full_name || profile.username}
+                {profile.is_creator && (
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-500 text-white">
+                    Creator
+                  </span>
+                )}
+              </h1>
+              
+              <div className="flex items-center justify-center gap-4 mt-2 text-gray-400">
+                {profile.website && (
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center hover:text-primary-400"
+                  >
+                    <Mail className="h-4 w-4 mr-1" />
+                    Contact
+                  </a>
+                )}
+              </div>
+
+              {profile.bio && (
+                <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
+                  {profile.bio}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 space-y-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Content</h2>
+        {/* Content Grid */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-white">Content</h2>
+          </div>
+
           {isLoadingContent ? (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-48 w-full" />
+                <Skeleton key={i} className="aspect-video w-full" />
               ))}
             </div>
           ) : content?.length === 0 ? (
-            <p className="text-center text-gray-400">No content yet</p>
+            <p className="text-center text-gray-400 py-8">No content yet</p>
           ) : (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {content?.map((item) => (
-                <Card key={item.id} className="bg-gray-800 border-gray-700">
-                  <CardContent className="p-6">
-                    <img
-                      src="/placeholder.svg"
-                      alt={item.title}
-                      className="w-full aspect-video object-cover rounded-lg mb-4"
-                    />
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-lg text-white">
-                          {item.title}
-                        </h3>
-                        {item.is_premium && (
+                <Card key={item.id} className="bg-gray-800 border-gray-700 overflow-hidden group">
+                  <CardContent className="p-0">
+                    <div className="relative aspect-video">
+                      <img
+                        src="/placeholder.svg"
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                      {item.is_premium && (
+                        <div className="absolute top-2 right-2">
                           <span className="bg-primary-600 text-white px-2 py-1 rounded text-xs">
                             Premium
                           </span>
-                        )}
-                      </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
+                        {item.title}
+                      </h3>
                       {item.description && (
-                        <p className="text-gray-400">{item.description}</p>
+                        <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                          {item.description}
+                        </p>
                       )}
                     </div>
                   </CardContent>
