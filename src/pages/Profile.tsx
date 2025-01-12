@@ -6,15 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Navigation } from "@/components/Navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Search, RefreshCw, Mail, DollarSign, MoreHorizontal } from "lucide-react";
+import { MapPin, Search, RefreshCw, Mail, DollarSign, MoreHorizontal, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Profile, Content } from "@/components/dashboard/types";
 import { ContentCarousel } from "@/components/dashboard/ContentCarousel";
 import { CreatePostForm } from "@/components/profile/CreatePostForm";
+import { useState } from "react";
 
 const ProfilePage = () => {
   const { username } = useParams();
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["profile", username],
@@ -177,15 +179,16 @@ const ProfilePage = () => {
           </Card>
         </div>
 
-        {/* Create Post Form - Only shown on own profile */}
+        {/* Create Post Button */}
         {isOwnProfile && (
-          <div className="mt-8">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Create a New Post</h2>
-                <CreatePostForm />
-              </CardContent>
-            </Card>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => setIsCreatePostOpen(true)}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Create Post
+            </Button>
           </div>
         )}
 
@@ -233,6 +236,11 @@ const ProfilePage = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <CreatePostForm
+          isOpen={isCreatePostOpen}
+          onClose={() => setIsCreatePostOpen(false)}
+        />
       </div>
     </div>
   );

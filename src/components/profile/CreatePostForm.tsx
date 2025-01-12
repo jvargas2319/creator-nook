@@ -13,46 +13,102 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ImagePlus } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CreatePostFormValues {
   title: string;
   description: string;
-  image: FileList;
+  media: FileList;
 }
 
-export function CreatePostForm() {
+interface CreatePostFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { toast } = useToast();
   const form = useForm<CreatePostFormValues>();
 
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    
+    if (selectedFiles.length + files.length > 5) {
+      toast({
+        variant: "destructive",
+        title: "Too many files",
+        description: "You can only upload up to 5 media files per post.",
+      });
+      return;
+    }
+
+    const newFiles = Array.from(files);
+    const validFiles = newFiles.filter(file => 
+      file.type.startsWith('image/') || file.type.startsWith('video/')
+    );
+
+    if (validFiles.length !== newFiles.length) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Only images and videos are allowed.",
+      });
+    }
+
+    setSelectedFiles(prev => [...prev, ...validFiles].slice(0, 5));
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (values: CreatePostFormValues) => {
+    if (selectedFiles.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No media selected",
+        description: "Please select at least one image or video.",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const image = values.image?.[0];
-      let imageUrl = null;
+      const mediaUrls = await Promise.all(
+        selectedFiles.map(async (file) => {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('profile_images')
+            .upload(fileName, file);
 
-      if (image) {
-        const fileExt = image.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('profile_images')
-          .upload(fileName, image);
+          if (uploadError) throw uploadError;
 
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('profile_images')
-          .getPublicUrl(fileName);
-        
-        imageUrl = publicUrl;
-      }
+          const { data: { publicUrl } } = supabase.storage
+            .from('profile_images')
+            .getPublicUrl(fileName);
+          
+          return {
+            url: publicUrl,
+            type: file.type.startsWith('image/') ? 'image' : 'video'
+          };
+        })
+      );
 
       const { error } = await supabase.from("content").insert({
         title: values.title,
         description: values.description,
         content_type: "post",
-        content_image_url: imageUrl,
+        content_image_url: mediaUrls[0].url, // Main image/video
+        content_url: mediaUrls.length > 1 ? JSON.stringify(mediaUrls.slice(1)) : null, // Additional media
         creator_id: (await supabase.auth.getUser()).data.user?.id,
         published_at: new Date().toISOString(),
       });
@@ -65,6 +121,8 @@ export function CreatePostForm() {
       });
 
       form.reset();
+      setSelectedFiles([]);
+      onClose();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -77,69 +135,87 @@ export function CreatePostForm() {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] bg-background">
+        <DialogHeader>
+          <DialogTitle className="text-foreground">Create New Post</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Title</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="text-foreground" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-foreground">Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="text-foreground" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field: { onChange, value, ...field } }) => (
-            <FormItem>
-              <FormLabel>Image</FormLabel>
-              <FormControl>
-                <div className="flex items-center gap-4">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => onChange(e.target.files)}
-                    {...field}
-                  />
-                  {value && value[0] && (
-                    <img
-                      src={URL.createObjectURL(value[0])}
-                      alt="Preview"
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <div className="space-y-4">
+              <FormLabel className="text-foreground">Media (up to 5 files)</FormLabel>
+              <Input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => handleFileSelect(e.target.files)}
+                className="text-foreground"
+                multiple
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="relative">
+                    {file.type.startsWith('image/') ? (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt="Preview"
+                        className="w-full h-32 object-cover rounded"
+                      />
+                    ) : (
+                      <video
+                        src={URL.createObjectURL(file)}
+                        className="w-full h-32 object-cover rounded"
+                      />
+                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeFile(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create Post
-        </Button>
-      </form>
-    </Form>
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Post
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
