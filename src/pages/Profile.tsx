@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Profile, Content } from "@/components/dashboard/types";
 import { ContentCarousel } from "@/components/dashboard/ContentCarousel";
+import { CreatePostForm } from "@/components/profile/CreatePostForm";
 
 const ProfilePage = () => {
   const { username } = useParams();
@@ -68,6 +69,8 @@ const ProfilePage = () => {
       </div>
     );
   }
+
+  const isOwnProfile = profile?.id === (supabase.auth.getUser())?.data?.user?.id;
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -170,6 +173,18 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Create Post Form - Only shown on own profile */}
+        {isOwnProfile && (
+          <div className="mt-8">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold text-white mb-4">Create a New Post</h2>
+                <CreatePostForm />
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Content Tabs */}
         <Tabs defaultValue="posts" className="mt-8">

@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       content: {
         Row: {
+          content_image_url: string | null
           content_type: string
           content_url: string | null
           created_at: string
@@ -23,6 +24,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          content_image_url?: string | null
           content_type: string
           content_url?: string | null
           created_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          content_image_url?: string | null
           content_type?: string
           content_url?: string | null
           created_at?: string
