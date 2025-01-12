@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Navigation } from "@/components/Navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Search, RefreshCw } from "lucide-react";
+import { MapPin, Search, RefreshCw, Mail, DollarSign, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Profile, Content } from "@/components/dashboard/types";
@@ -73,20 +73,72 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-gray-900">
       <Navigation />
       
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        {/* Header Section */}
-        <div className="flex items-start justify-between mb-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-gray-400">
+      {/* Banner Image */}
+      <div className="relative h-48 md:h-64 w-full">
+        {profile.banner_url ? (
+          <img
+            src={profile.banner_url}
+            alt="Profile banner"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-800" />
+        )}
+      </div>
+
+      <div className="container max-w-4xl mx-auto px-4">
+        {/* Profile Info Section */}
+        <div className="relative -mt-20 mb-8">
+          <div className="flex flex-col md:flex-row items-start md:items-end gap-4">
+            {/* Avatar */}
+            <Avatar className="w-32 h-32 border-4 border-gray-900">
+              <AvatarImage src={profile.avatar_url || undefined} />
+              <AvatarFallback>{profile.username?.[0]?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            
+            {/* Profile Actions */}
+            <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-white">{profile.full_name}</h1>
+                <p className="text-gray-400">@{profile.username}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon">
+                  <Mail className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon">
+                  <DollarSign className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Bio Section */}
+          {profile.bio && (
+            <div className="mt-4 text-gray-300">
+              <p>{profile.bio}</p>
+            </div>
+          )}
+
+          {/* Location and Website */}
+          <div className="mt-4 flex flex-wrap gap-4">
+            {profile.website && (
+              <a
+                href={profile.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:underline flex items-center gap-1"
+              >
+                🌐 {profile.website}
+              </a>
+            )}
+            <div className="flex items-center gap-1 text-gray-400">
               <MapPin className="h-4 w-4" />
               <span>Miami</span>
             </div>
-            <Button variant="link" className="text-blue-400 p-0">
-              Show more
-            </Button>
-          </div>
-          <div className="text-gray-400">
-            Daily activity
           </div>
         </div>
 
