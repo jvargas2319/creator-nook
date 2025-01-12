@@ -45,6 +45,11 @@ const ProfilePage = () => {
     },
   });
 
+  const isOwnProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return profile?.id === user?.id;
+  };
+
   if (isLoadingProfile) {
     return (
       <div className="min-h-screen bg-gray-900">
@@ -69,8 +74,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
-  const isOwnProfile = profile?.id === (supabase.auth.getUser())?.data?.user?.id;
 
   return (
     <div className="min-h-screen bg-gray-900">
