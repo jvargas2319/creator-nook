@@ -150,48 +150,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Subscription Tiers */}
-        <div className="space-y-6 mb-8">
-          {/* My Fan Tier */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-white">My fan 😊: Limited offer First Month 50% Off!</h3>
-              </div>
-              <p className="text-sm text-gray-400 mb-4">Offer ends Jun 6</p>
-              <Button className="w-full bg-blue-500 hover:bg-blue-600">
-                My fan 😊 1 Month - $5 (First Month 50% Off!)
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* VIP Fan Tier */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-white">VIP Fan 😍: Limited offer First Month 36.67% Off!</h3>
-              </div>
-              <p className="text-sm text-gray-400 mb-4">Offer ends May 9</p>
-              <Button className="w-full bg-blue-500 hover:bg-blue-600">
-                VIP Fan 😍 1 Month - $19 (First Month 36.67% Off!)
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Create Post Button */}
-        {isOwnProfile && (
-          <div className="flex justify-end mb-4">
-            <Button
-              onClick={() => setIsCreatePostOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Create Post
-            </Button>
-          </div>
-        )}
-
         {/* Content Tabs */}
         <Tabs defaultValue="posts" className="mt-8">
           <TabsList className="w-full bg-gray-800">
@@ -218,19 +176,26 @@ const ProfilePage = () => {
                 <Skeleton className="h-32 w-full" />
               </div>
             ) : (
-              <ContentCarousel content={content || []} />
+              <ContentCarousel content={content || []} profile={profile} />
             )}
           </TabsContent>
 
           <TabsContent value="media" className="mt-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {content?.filter(item => item.content_type === "image").map(item => (
+              {content?.filter(item => item.content_type === "image" || item.content_type === "video").map(item => (
                 <div key={item.id} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                  <img
-                    src={item.content_url || "/placeholder.svg"}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
+                  {item.content_type === "image" ? (
+                    <img
+                      src={item.content_url || "/placeholder.svg"}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={item.content_url}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               ))}
             </div>

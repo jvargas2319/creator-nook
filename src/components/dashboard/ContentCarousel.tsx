@@ -1,83 +1,97 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageCircle } from "lucide-react";
+import { Users, MessageCircle, Heart, Share2 } from "lucide-react";
 import type { Content } from "./types";
-
-const placeholderImages = [
-  "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-  "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-  "https://images.unsplash.com/photo-1518770660439-4636190af475",
-  "https://images.unsplash.com/photo-1461749280684-dccba630e2f6",
-];
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 interface ContentCarouselProps {
   content: Content[];
+  profile?: {
+    username?: string | null;
+    avatar_url?: string | null;
+    full_name?: string | null;
+  };
 }
 
-export const ContentCarousel = ({ content }: ContentCarouselProps) => {
+export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
   if (content.length === 0) {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto">
-        {[1, 2, 3].map((_, index) => (
-          <Card key={index} className="bg-[#1A1A1A] border-gray-800">
-            <CardContent className="p-6">
-              <img
-                src={placeholderImages[index % placeholderImages.length]}
-                alt="Placeholder"
-                className="w-full aspect-video object-cover rounded-lg mb-4"
-              />
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg text-white">Sample Content</h3>
-                <p className="text-sm text-gray-400">
-                  This is a placeholder for your future content. Start creating!
-                </p>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>0</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>0</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="text-center text-gray-400 py-8">
+        No posts yet. Create your first post!
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      {content.map((item, index) => (
+    <div className="space-y-4">
+      {content.map((item) => (
         <Card key={item.id} className="bg-[#1A1A1A] border-gray-800">
-          <CardContent className="p-6">
-            <img
-              src={placeholderImages[index % placeholderImages.length]}
-              alt={item.title}
-              className="w-full aspect-video object-cover rounded-lg mb-4"
-            />
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg text-white">{item.title}</h3>
-                {item.is_premium && (
-                  <span className="px-2 py-1 text-xs bg-primary text-white rounded">
-                    Premium
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-gray-400">{item.description}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-400">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>0</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MessageCircle className="h-4 w-4" />
-                  <span>0</span>
+          <CardContent className="p-4">
+            {/* Post Header */}
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>
+                    {profile?.username?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-white">
+                    {profile?.full_name || profile?.username}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    @{profile?.username}{" "}
+                    {item.published_at && (
+                      <span className="ml-2">
+                        · {formatDistanceToNow(new Date(item.published_at))} ago
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
+              {item.is_premium && (
+                <span className="px-2 py-1 text-xs bg-primary text-white rounded">
+                  Premium
+                </span>
+              )}
+            </div>
+
+            {/* Post Content */}
+            <div className="space-y-3">
+              <p className="text-white whitespace-pre-wrap">{item.description}</p>
+              {item.content_url && (
+                <div className="rounded-lg overflow-hidden">
+                  {item.content_type === "image" ? (
+                    <img
+                      src={item.content_url}
+                      alt={item.title}
+                      className="w-full object-cover rounded-lg"
+                    />
+                  ) : item.content_type === "video" ? (
+                    <video
+                      src={item.content_url}
+                      controls
+                      className="w-full rounded-lg"
+                    />
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {/* Post Actions */}
+            <div className="flex items-center gap-6 mt-4 text-gray-400">
+              <button className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Heart className="h-5 w-5" />
+                <span>0</span>
+              </button>
+              <button className="flex items-center gap-2 hover:text-primary transition-colors">
+                <MessageCircle className="h-5 w-5" />
+                <span>0</span>
+              </button>
+              <button className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Share2 className="h-5 w-5" />
+              </button>
             </div>
           </CardContent>
         </Card>
