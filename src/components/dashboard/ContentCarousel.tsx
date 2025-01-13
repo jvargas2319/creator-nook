@@ -70,39 +70,43 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
             <div className="space-y-3">
               <p className="text-white whitespace-pre-wrap">{item.description}</p>
               
-              {/* Main Media */}
-              {item.content_image_url && (
-                <div className="rounded-lg overflow-hidden">
-                  <img
-                    src={item.content_image_url}
-                    alt={item.title}
-                    className="w-full h-auto max-h-[500px] object-cover rounded-lg"
-                  />
-                </div>
-              )}
+              {/* Media Gallery */}
+              <div className="grid grid-cols-1 gap-2">
+                {/* Main Media */}
+                {item.content_image_url && (
+                  <div className="rounded-lg overflow-hidden">
+                    <img
+                      src={item.content_image_url}
+                      alt={item.title}
+                      className="w-full h-auto object-cover rounded-lg"
+                      style={{ maxHeight: '500px' }}
+                    />
+                  </div>
+                )}
 
-              {/* Additional Media */}
-              {item.content_url && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
-                    <div key={index} className="rounded-lg overflow-hidden">
-                      {media.type === "image" ? (
-                        <img
-                          src={media.url}
-                          alt={`Additional media ${index + 1}`}
-                          className="w-full h-auto max-h-[300px] object-cover rounded-lg"
-                        />
-                      ) : media.type === "video" ? (
-                        <video
-                          src={media.url}
-                          controls
-                          className="w-full rounded-lg"
-                        />
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              )}
+                {/* Additional Media */}
+                {item.content_url && (
+                  <div className={`grid ${parseAdditionalMedia(item.content_url).length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                    {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
+                      <div key={index} className="rounded-lg overflow-hidden aspect-square">
+                        {media.type === "image" ? (
+                          <img
+                            src={media.url}
+                            alt={`Additional media ${index + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : media.type === "video" ? (
+                          <video
+                            src={media.url}
+                            controls
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Post Actions */}
