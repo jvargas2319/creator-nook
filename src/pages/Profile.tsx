@@ -182,22 +182,25 @@ const ProfilePage = () => {
 
           <TabsContent value="media" className="mt-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {content?.filter(item => item.content_type === "image" || item.content_type === "video").map(item => (
-                <div key={item.id} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                  {item.content_type === "image" ? (
-                    <img
-                      src={item.content_url || "/placeholder.svg"}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <video
-                      src={item.content_url}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-              ))}
+              {content
+                ?.filter(item => item.content_type === "image" || item.content_type === "video")
+                .map(item => (
+                  <div key={item.id} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                    {item.content_type === "image" ? (
+                      <img
+                        src={item.content_url || undefined}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : item.content_type === "video" ? (
+                      <video
+                        src={item.content_url || undefined}
+                        className="w-full h-full object-cover"
+                        controls
+                      />
+                    ) : null}
+                  </div>
+                ))}
             </div>
           </TabsContent>
         </Tabs>

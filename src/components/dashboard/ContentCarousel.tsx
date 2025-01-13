@@ -66,7 +66,7 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                     <img
                       src={item.content_url}
                       alt={item.title}
-                      className="w-full object-cover rounded-lg"
+                      className="w-full h-auto max-h-[500px] object-cover rounded-lg"
                     />
                   ) : item.content_type === "video" ? (
                     <video
