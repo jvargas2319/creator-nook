@@ -82,15 +82,30 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
 
     setIsSubmitting(true);
     try {
+      // Get the current user first
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("You must be logged in to create a post");
+      }
+
+      console.log("Uploading files for user:", user.id);
+
       const mediaUrls = await Promise.all(
         selectedFiles.map(async (file) => {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${Math.random()}.${fileExt}`;
+          const fileName = `${crypto.randomUUID()}.${fileExt}`;
+          
+          console.log("Uploading file:", fileName);
+          
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('profile_images')
             .upload(fileName, file);
 
-          if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error("Upload error:", uploadError);
+            throw uploadError;
+          }
 
           const { data: { publicUrl } } = supabase.storage
             .from('profile_images')
@@ -103,17 +118,22 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
         })
       );
 
-      const { error } = await supabase.from("content").insert({
+      console.log("Files uploaded successfully:", mediaUrls);
+
+      const { error: insertError } = await supabase.from("content").insert({
         title: values.title,
         description: values.description,
         content_type: "post",
         content_image_url: mediaUrls[0].url, // Main image/video
         content_url: mediaUrls.length > 1 ? JSON.stringify(mediaUrls.slice(1)) : null, // Additional media
-        creator_id: (await supabase.auth.getUser()).data.user?.id,
+        creator_id: user.id,
         published_at: new Date().toISOString(),
       });
 
-      if (error) throw error;
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
 
       toast({
         title: "Post created",
@@ -124,6 +144,7 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
       setSelectedFiles([]);
       onClose();
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         variant: "destructive",
         title: "Error",
