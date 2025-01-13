@@ -47,10 +47,15 @@ const ProfilePage = () => {
     },
   });
 
-  const isOwnProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    return profile?.id === user?.id;
-  };
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+
+  const isOwnProfile = currentUser?.id === profile?.id;
 
   if (isLoadingProfile) {
     return (
@@ -111,6 +116,15 @@ const ProfilePage = () => {
                 <p className="text-gray-400">@{profile.username}</p>
               </div>
               <div className="flex gap-2">
+                {isOwnProfile && (
+                  <Button 
+                    onClick={() => setIsCreatePostOpen(true)}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <PlusCircle className="h-4 w-4 mr-2" />
+                    Create Post
+                  </Button>
+                )}
                 <Button variant="outline" size="icon">
                   <Mail className="h-4 w-4" />
                 </Button>
