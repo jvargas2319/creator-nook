@@ -67,19 +67,19 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
             </div>
 
             {/* Post Content */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               <p className="text-white whitespace-pre-wrap">{item.description}</p>
               
               {/* Media Gallery */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {/* Main Media */}
                 {item.content_image_url && (
                   <div className="rounded-lg overflow-hidden">
-                    <div className="max-h-[300px] flex items-center justify-center bg-black/20">
+                    <div className="h-[250px] flex items-center justify-center bg-black/10">
                       <img
                         src={item.content_image_url}
                         alt={item.title}
-                        className="max-w-full max-h-[300px] w-auto h-auto object-contain rounded-lg"
+                        className="max-w-full max-h-[250px] w-auto h-auto object-contain"
                       />
                     </div>
                   </div>
@@ -89,21 +89,21 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                 {item.content_url && (
                   <div className={`grid ${
                     parseAdditionalMedia(item.content_url).length > 1 ? 'grid-cols-2' : 'grid-cols-1'
-                  } gap-4`}>
+                  } gap-2`}>
                     {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
                       <div key={index} className="rounded-lg overflow-hidden">
-                        <div className="aspect-square flex items-center justify-center bg-black/20">
+                        <div className="h-[200px] flex items-center justify-center bg-black/10">
                           {media.type === "image" ? (
                             <img
                               src={media.url}
                               alt={`Additional media ${index + 1}`}
-                              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+                              className="max-w-full max-h-[200px] w-auto h-auto object-contain"
                             />
                           ) : media.type === "video" ? (
                             <video
                               src={media.url}
                               controls
-                              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+                              className="max-w-full max-h-[200px] w-auto h-auto object-contain"
                             />
                           ) : null}
                         </div>
