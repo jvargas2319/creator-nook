@@ -55,6 +55,34 @@ const ProfilePage = () => {
     },
   });
 
+  const parseAdditionalMedia = (contentUrl: string | null) => {
+    if (!contentUrl) return [];
+    try {
+      return JSON.parse(contentUrl);
+    } catch {
+      return [];
+    }
+  };
+
+  // Get all media from posts (main image and additional media)
+  const getAllMedia = () => {
+    if (!content) return [];
+    
+    return content.reduce((acc: Array<{ url: string, type: string }>, post) => {
+      // Add main image if it exists
+      if (post.content_image_url) {
+        acc.push({
+          url: post.content_image_url,
+          type: 'image'
+        });
+      }
+      
+      // Add additional media if it exists
+      const additionalMedia = parseAdditionalMedia(post.content_url);
+      return [...acc, ...additionalMedia];
+    }, []);
+  };
+
   const isOwnProfile = currentUser?.id === profile?.id;
 
   if (isLoadingProfile) {
@@ -196,25 +224,23 @@ const ProfilePage = () => {
 
           <TabsContent value="media" className="mt-6">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {content
-                ?.filter(item => item.content_type === "image" || item.content_type === "video")
-                .map(item => (
-                  <div key={item.id} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                    {item.content_type === "image" ? (
-                      <img
-                        src={item.content_url || undefined}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : item.content_type === "video" ? (
-                      <video
-                        src={item.content_url || undefined}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : null}
-                  </div>
-                ))}
+              {getAllMedia().map((media, index) => (
+                <div key={index} className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                  {media.type === "image" ? (
+                    <img
+                      src={media.url}
+                      alt={`Media ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : media.type === "video" ? (
+                    <video
+                      src={media.url}
+                      className="w-full h-full object-cover"
+                      controls
+                    />
+                  ) : null}
+                </div>
+              ))}
             </div>
           </TabsContent>
         </Tabs>
