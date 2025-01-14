@@ -75,11 +75,11 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                 {/* Main Media */}
                 {item.content_image_url && (
                   <div className="rounded-lg overflow-hidden">
-                    <div className="h-[250px] flex items-center justify-center bg-black/10">
+                    <div className="h-[250px] w-full flex items-center justify-center bg-black/10">
                       <img
                         src={item.content_image_url}
                         alt={item.title}
-                        className="max-w-full max-h-[250px] w-auto h-auto object-contain"
+                        className="h-[250px] w-full object-cover"
                       />
                     </div>
                   </div>
@@ -92,18 +92,18 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                   } gap-2`}>
                     {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
                       <div key={index} className="rounded-lg overflow-hidden">
-                        <div className="h-[200px] flex items-center justify-center bg-black/10">
+                        <div className="h-[200px] w-full flex items-center justify-center bg-black/10">
                           {media.type === "image" ? (
                             <img
                               src={media.url}
                               alt={`Additional media ${index + 1}`}
-                              className="max-w-full max-h-[200px] w-auto h-auto object-contain"
+                              className="h-[200px] w-full object-cover"
                             />
                           ) : media.type === "video" ? (
                             <video
                               src={media.url}
                               controls
-                              className="max-w-full max-h-[200px] w-auto h-auto object-contain"
+                              className="h-[200px] w-full object-cover"
                             />
                           ) : null}
                         </div>
