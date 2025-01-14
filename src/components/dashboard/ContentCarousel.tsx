@@ -71,15 +71,14 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
               <p className="text-white whitespace-pre-wrap">{item.description}</p>
               
               {/* Media Gallery */}
-              <div className="grid grid-cols-1 gap-2">
+              <div className="space-y-2">
                 {/* Main Media */}
                 {item.content_image_url && (
-                  <div className="rounded-lg overflow-hidden">
+                  <div className="rounded-lg overflow-hidden max-h-[400px]">
                     <img
                       src={item.content_image_url}
                       alt={item.title}
-                      className="w-full h-auto object-cover rounded-lg"
-                      style={{ maxHeight: '500px' }}
+                      className="w-full h-full object-contain rounded-lg"
                     />
                   </div>
                 )}
@@ -88,18 +87,18 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                 {item.content_url && (
                   <div className={`grid ${parseAdditionalMedia(item.content_url).length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
                     {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
-                      <div key={index} className="rounded-lg overflow-hidden aspect-square">
+                      <div key={index} className="rounded-lg overflow-hidden h-[300px]">
                         {media.type === "image" ? (
                           <img
                             src={media.url}
                             alt={`Additional media ${index + 1}`}
-                            className="w-full h-full object-cover rounded-lg"
+                            className="w-full h-full object-contain rounded-lg"
                           />
                         ) : media.type === "video" ? (
                           <video
                             src={media.url}
                             controls
-                            className="w-full h-full object-cover rounded-lg"
+                            className="w-full h-full object-contain rounded-lg"
                           />
                         ) : null}
                       </div>
