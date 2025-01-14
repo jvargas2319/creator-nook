@@ -71,36 +71,42 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
               <p className="text-white whitespace-pre-wrap">{item.description}</p>
               
               {/* Media Gallery */}
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {/* Main Media */}
                 {item.content_image_url && (
-                  <div className="rounded-lg overflow-hidden max-h-[400px]">
-                    <img
-                      src={item.content_image_url}
-                      alt={item.title}
-                      className="w-full h-full object-contain rounded-lg"
-                    />
+                  <div className="rounded-lg overflow-hidden">
+                    <div className="max-h-[300px] flex items-center justify-center bg-black/20">
+                      <img
+                        src={item.content_image_url}
+                        alt={item.title}
+                        className="max-w-full max-h-[300px] w-auto h-auto object-contain rounded-lg"
+                      />
+                    </div>
                   </div>
                 )}
 
                 {/* Additional Media */}
                 {item.content_url && (
-                  <div className={`grid ${parseAdditionalMedia(item.content_url).length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                  <div className={`grid ${
+                    parseAdditionalMedia(item.content_url).length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+                  } gap-4`}>
                     {parseAdditionalMedia(item.content_url).map((media: { url: string, type: string }, index: number) => (
-                      <div key={index} className="rounded-lg overflow-hidden h-[300px]">
-                        {media.type === "image" ? (
-                          <img
-                            src={media.url}
-                            alt={`Additional media ${index + 1}`}
-                            className="w-full h-full object-contain rounded-lg"
-                          />
-                        ) : media.type === "video" ? (
-                          <video
-                            src={media.url}
-                            controls
-                            className="w-full h-full object-contain rounded-lg"
-                          />
-                        ) : null}
+                      <div key={index} className="rounded-lg overflow-hidden">
+                        <div className="aspect-square flex items-center justify-center bg-black/20">
+                          {media.type === "image" ? (
+                            <img
+                              src={media.url}
+                              alt={`Additional media ${index + 1}`}
+                              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+                            />
+                          ) : media.type === "video" ? (
+                            <video
+                              src={media.url}
+                              controls
+                              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
+                            />
+                          ) : null}
+                        </div>
                       </div>
                     ))}
                   </div>
