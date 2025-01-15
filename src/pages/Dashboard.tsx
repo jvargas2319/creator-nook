@@ -166,7 +166,7 @@ const Dashboard = () => {
                 setShowCreateForm={setShowCreateForm}
               />
             ) : (
-              <SubscriberDashboard profile={profile} />
+              <SubscriberDashboard profile={profile} content={content} />
             )}
           </div>
           
