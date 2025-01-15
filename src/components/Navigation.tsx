@@ -2,14 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navigation() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const { data: profile, refetch } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
       
       const { data } = await supabase
@@ -20,6 +21,7 @@ export function Navigation() {
       
       return data;
     },
+    enabled: !!user,
   });
 
   const handleLogout = async () => {
@@ -52,24 +54,40 @@ export function Navigation() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard" className="text-gray-300 hover:text-white">
-              Dashboard
-            </Link>
-            <Link to="/settings" className="text-gray-300 hover:text-white">
-              Settings
-            </Link>
-            <Link 
-              to={profile?.username ? `/profile/${profile.username}` : "/settings"} 
-              className="text-gray-300 hover:text-white"
-            >
-              Profile
-            </Link>
-            <button 
-              onClick={handleLogout}
-              className="text-gray-300 hover:text-white cursor-pointer"
-            >
-              Logout
-            </button>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="text-gray-300 hover:text-white">
+                  Dashboard
+                </Link>
+                <Link to="/settings" className="text-gray-300 hover:text-white">
+                  Settings
+                </Link>
+                <Link 
+                  to={profile?.username ? `/profile/${profile.username}` : "/settings"} 
+                  className="text-gray-300 hover:text-white"
+                >
+                  Profile
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="text-gray-300 hover:text-white cursor-pointer"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-gray-300 hover:text-white">
+                  Login
+                </Link>
+                <Link 
+                  to="/signup"
+                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
