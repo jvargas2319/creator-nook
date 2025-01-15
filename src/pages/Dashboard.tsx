@@ -32,9 +32,21 @@ const Dashboard = () => {
         .order('published_at', { ascending: false });
 
       if (filter === "subscribed") {
-        // Add subscribed content filter logic here
-        // For now, we'll just show creator's content as an example
-        query = query.eq("creator_id", userId);
+        // Fetch only posts from users that the current user follows
+        const { data: followedUsers } = await supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', userId);
+        
+        const followedUserIds = followedUsers?.map(follow => follow.following_id) || [];
+        
+        if (followedUserIds.length > 0) {
+          query = query.in('creator_id', followedUserIds);
+        } else {
+          // If not following anyone, return empty array
+          setContent([]);
+          return;
+        }
       } else if (filter === "for-you") {
         // Add personalized content filter logic here
         // For now, we'll show the latest content as an example
