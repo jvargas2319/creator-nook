@@ -19,7 +19,17 @@ const Dashboard = () => {
 
   const fetchContent = async (userId: string, filter: string) => {
     try {
-      let query = supabase.from("content").select("*");
+      let query = supabase
+        .from("content")
+        .select(`
+          *,
+          profiles:creator_id (
+            username,
+            avatar_url,
+            full_name
+          )
+        `)
+        .order('published_at', { ascending: false });
 
       if (filter === "subscribed") {
         // Add subscribed content filter logic here
@@ -28,12 +38,19 @@ const Dashboard = () => {
       } else if (filter === "for-you") {
         // Add personalized content filter logic here
         // For now, we'll show the latest content as an example
-        query = query.order("published_at", { ascending: false }).limit(5);
+        query = query.limit(5);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      setContent(data || []);
+      
+      // Transform the data to match the expected format
+      const transformedContent = data?.map(item => ({
+        ...item,
+        profile: item.profiles
+      })) || [];
+      
+      setContent(transformedContent);
     } catch (error: any) {
       toast({
         variant: "destructive",
