@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export function Navigation() {
-  const { data: profile } = useQuery({
+  const navigate = useNavigate();
+
+  const { data: profile, refetch } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -18,6 +21,26 @@ export function Navigation() {
       return data;
     },
   });
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out successfully",
+        duration: 2000,
+      });
+      
+      navigate("/login");
+    } catch (error) {
+      toast({
+        title: "Error logging out",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="bg-gray-800 border-b border-gray-700">
@@ -41,9 +64,12 @@ export function Navigation() {
             >
               Profile
             </Link>
-            <Link to="/logout" className="text-gray-300 hover:text-white">
+            <button 
+              onClick={handleLogout}
+              className="text-gray-300 hover:text-white cursor-pointer"
+            >
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </div>
