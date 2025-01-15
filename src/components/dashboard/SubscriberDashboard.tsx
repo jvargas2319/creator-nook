@@ -10,7 +10,7 @@ interface SubscriberDashboardProps {
 export const SubscriberDashboard = ({ profile, content = [] }: SubscriberDashboardProps) => {
   return (
     <div className="space-y-6">
-      <ContentCarousel content={content} profile={content[0]?.profile} />
+      <ContentCarousel content={content} profile={profile} />
     </div>
   );
 };

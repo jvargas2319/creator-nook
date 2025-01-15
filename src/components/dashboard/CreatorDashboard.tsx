@@ -39,7 +39,7 @@ export const CreatorDashboard = ({
       )}
 
       <div className="grid gap-6">
-        <ContentCarousel content={content} profile={content[0]?.profile} />
+        <ContentCarousel content={content} profile={profile} />
       </div>
     </div>
   );

@@ -1,16 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, MessageCircle, Heart, Share2 } from "lucide-react";
-import type { Content } from "./types";
+import type { Content, Profile } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 
 interface ContentCarouselProps {
   content: Content[];
-  profile?: {
-    username?: string | null;
-    avatar_url?: string | null;
-    full_name?: string | null;
-  };
+  profile: Profile;
 }
 
 export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
