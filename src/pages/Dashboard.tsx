@@ -31,7 +31,10 @@ const Dashboard = () => {
         `)
         .order('published_at', { ascending: false });
 
-      if (filter === "subscribed") {
+      // For "all" tab, we only filter by published posts
+      if (filter === "all") {
+        query = query.not('published_at', 'is', null);
+      } else if (filter === "subscribed") {
         // Fetch only posts from users that the current user follows
         const { data: followedUsers } = await supabase
           .from('follows')
