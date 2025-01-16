@@ -11,6 +11,7 @@ export interface Profile {
 
 export interface Content {
   id: string;
+  creator_id: string;
   title: string;
   description: string | null;
   content_type: string;
@@ -18,4 +19,9 @@ export interface Content {
   content_image_url: string | null;
   is_premium: boolean | null;
   published_at: string | null;
+  profile?: {
+    username: string | null;
+    avatar_url: string | null;
+    full_name: string | null;
+  };
 }
