@@ -39,6 +39,18 @@ export const ContentCarousel = ({ content: initialContent, profile }: ContentCar
           setContent(prevContent => [payload.new as Content, ...prevContent]);
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'content'
+        },
+        (payload) => {
+          // Remove the deleted post from the content array
+          setContent(prevContent => prevContent.filter(item => item.id !== payload.old.id));
+        }
+      )
       .subscribe();
 
     return () => {
@@ -68,8 +80,7 @@ export const ContentCarousel = ({ content: initialContent, profile }: ContentCar
         description: "Your post has been removed.",
       });
 
-      // Remove the deleted post from the local state
-      setContent(prevContent => prevContent.filter(item => item.id !== postId));
+      // The real-time subscription will handle removing the post from the state
     } catch (error: any) {
       toast({
         variant: "destructive",
