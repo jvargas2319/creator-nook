@@ -7,15 +7,44 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface ContentCarouselProps {
   content: Content[];
   profile: Profile;
 }
 
-export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
+export const ContentCarousel = ({ content: initialContent, profile }: ContentCarouselProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [content, setContent] = useState(initialContent);
+
+  useEffect(() => {
+    setContent(initialContent);
+  }, [initialContent]);
+
+  useEffect(() => {
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('public:content')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'content'
+        },
+        (payload) => {
+          // Add the new post to the content array
+          setContent(prevContent => [payload.new as Content, ...prevContent]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (content.length === 0) {
     return (
@@ -39,7 +68,8 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
         description: "Your post has been removed.",
       });
 
-      // You might want to refresh the content here or use optimistic updates
+      // Remove the deleted post from the local state
+      setContent(prevContent => prevContent.filter(item => item.id !== postId));
     } catch (error: any) {
       toast({
         variant: "destructive",
