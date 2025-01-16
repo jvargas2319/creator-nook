@@ -1,8 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageCircle, Heart, Share2 } from "lucide-react";
+import { Users, MessageCircle, Heart, Share2, Pencil, Trash2 } from "lucide-react";
 import type { Content, Profile } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContentCarouselProps {
   content: Content[];
@@ -10,6 +14,9 @@ interface ContentCarouselProps {
 }
 
 export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   if (content.length === 0) {
     return (
       <div className="text-center text-gray-400 py-8">
@@ -17,6 +24,30 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
       </div>
     );
   }
+
+  const handleDelete = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from('content')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Post deleted successfully",
+        description: "Your post has been removed.",
+      });
+
+      // You might want to refresh the content here or use optimistic updates
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error deleting post",
+        description: error.message,
+      });
+    }
+  };
 
   const parseAdditionalMedia = (contentUrl: string | null) => {
     if (!contentUrl) return [];
@@ -30,23 +61,28 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
   return (
     <div className="space-y-4">
       {content.map((item) => (
-        <Card key={item.id} className="bg-[#1A1A1A] border-gray-800">
+        <Card 
+          key={item.id} 
+          className={`bg-[#1A1A1A] border-gray-800 ${
+            item.creator_id === user?.id ? 'border-l-4 border-l-primary' : ''
+          }`}
+        >
           <CardContent className="p-4">
             {/* Post Header */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarImage src={item.profile?.avatar_url || undefined} />
                   <AvatarFallback>
-                    {profile?.username?.[0]?.toUpperCase()}
+                    {item.profile?.username?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold text-white">
-                    {profile?.full_name || profile?.username}
+                    {item.profile?.full_name || item.profile?.username}
                   </h3>
                   <p className="text-sm text-gray-400">
-                    @{profile?.username}{" "}
+                    @{item.profile?.username}{" "}
                     {item.published_at && (
                       <span className="ml-2">
                         · {formatDistanceToNow(new Date(item.published_at))} ago
@@ -55,11 +91,32 @@ export const ContentCarousel = ({ content, profile }: ContentCarouselProps) => {
                   </p>
                 </div>
               </div>
-              {item.is_premium && (
-                <span className="px-2 py-1 text-xs bg-primary text-white rounded">
-                  Premium
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {item.is_premium && (
+                  <span className="px-2 py-1 text-xs bg-primary text-white rounded">
+                    Premium
+                  </span>
+                )}
+                {item.creator_id === user?.id && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-primary"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-gray-400 hover:text-destructive"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Post Content */}

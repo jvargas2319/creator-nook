@@ -8,6 +8,9 @@ import { SubscriberDashboard } from "@/components/dashboard/SubscriberDashboard"
 import { Suggestions } from "@/components/dashboard/Suggestions";
 import type { Profile, Content } from "@/components/dashboard/types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
+
+const POSTS_PER_PAGE = 10;
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -15,9 +18,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const fetchContent = async (userId: string, filter: string) => {
+  const fetchContent = async (userId: string, filter: string, pageNumber: number = 0) => {
     try {
       let query = supabase
         .from("content")
@@ -29,7 +35,8 @@ const Dashboard = () => {
             full_name
           )
         `)
-        .order('published_at', { ascending: false });
+        .order('published_at', { ascending: false })
+        .range(pageNumber * POSTS_PER_PAGE, (pageNumber + 1) * POSTS_PER_PAGE - 1);
 
       // For "all" tab, we only filter by published posts
       if (filter === "all") {
@@ -46,14 +53,13 @@ const Dashboard = () => {
         if (followedUserIds.length > 0) {
           query = query.in('creator_id', followedUserIds);
         } else {
-          // If not following anyone, return empty array
           setContent([]);
+          setHasMore(false);
           return;
         }
       } else if (filter === "for-you") {
         // Add personalized content filter logic here
-        // For now, we'll show the latest content as an example
-        query = query.limit(5);
+        query = query.limit(POSTS_PER_PAGE);
       }
 
       const { data, error } = await query;
@@ -65,7 +71,14 @@ const Dashboard = () => {
         profile: item.profiles
       })) || [];
       
-      setContent(transformedContent);
+      if (pageNumber === 0) {
+        setContent(transformedContent);
+      } else {
+        setContent(prev => [...prev, ...transformedContent]);
+      }
+
+      // Update hasMore based on whether we got a full page of results
+      setHasMore(transformedContent.length === POSTS_PER_PAGE);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -106,11 +119,22 @@ const Dashboard = () => {
     };
 
     fetchProfile();
+    // Reset page when tab changes
+    setPage(0);
   }, [toast, activeTab]);
 
   const handleRefresh = async () => {
     if (profile) {
+      setPage(0);
       await fetchContent(profile.id, activeTab);
+    }
+  };
+
+  const loadMore = async () => {
+    if (profile && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      await fetchContent(profile.id, activeTab, nextPage);
     }
   };
 
@@ -182,6 +206,17 @@ const Dashboard = () => {
               />
             ) : (
               <SubscriberDashboard profile={profile} content={content} />
+            )}
+
+            {hasMore && content.length > 0 && (
+              <div className="mt-4 text-center">
+                <button
+                  onClick={loadMore}
+                  className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Load More
+                </button>
+              </div>
             )}
           </div>
           
