@@ -80,7 +80,17 @@ const SettingsPage = () => {
         })
         .eq("id", user.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Username already taken",
+            description: "Please choose a different username.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Profile updated successfully",
