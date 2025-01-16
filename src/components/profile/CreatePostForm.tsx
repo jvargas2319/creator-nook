@@ -71,67 +71,54 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
   };
 
   const onSubmit = async (values: CreatePostFormValues) => {
-    if (selectedFiles.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "No media selected",
-        description: "Please select at least one image or video.",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      // Get the current user first
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
         throw new Error("You must be logged in to create a post");
       }
 
-      console.log("Uploading files for user:", user.id);
+      let mediaUrls: { url: string; type: string; }[] = [];
 
-      const mediaUrls = await Promise.all(
-        selectedFiles.map(async (file) => {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${crypto.randomUUID()}.${fileExt}`;
-          
-          console.log("Uploading file:", fileName);
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('profile_images')
-            .upload(fileName, file);
+      // Only process media if files are selected
+      if (selectedFiles.length > 0) {
+        mediaUrls = await Promise.all(
+          selectedFiles.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${crypto.randomUUID()}.${fileExt}`;
+            
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('profile_images')
+              .upload(fileName, file);
 
-          if (uploadError) {
-            console.error("Upload error:", uploadError);
-            throw uploadError;
-          }
+            if (uploadError) {
+              throw uploadError;
+            }
 
-          const { data: { publicUrl } } = supabase.storage
-            .from('profile_images')
-            .getPublicUrl(fileName);
-          
-          return {
-            url: publicUrl,
-            type: file.type.startsWith('image/') ? 'image' : 'video'
-          };
-        })
-      );
-
-      console.log("Files uploaded successfully:", mediaUrls);
+            const { data: { publicUrl } } = supabase.storage
+              .from('profile_images')
+              .getPublicUrl(fileName);
+            
+            return {
+              url: publicUrl,
+              type: file.type.startsWith('image/') ? 'image' : 'video'
+            };
+          })
+        );
+      }
 
       const { error: insertError } = await supabase.from("content").insert({
         title: values.title,
         description: values.description,
         content_type: "post",
-        content_image_url: mediaUrls[0].url, // Main image/video
-        content_url: mediaUrls.length > 1 ? JSON.stringify(mediaUrls.slice(1)) : null, // Additional media
+        content_image_url: mediaUrls.length > 0 ? mediaUrls[0].url : null,
+        content_url: mediaUrls.length > 1 ? JSON.stringify(mediaUrls.slice(1)) : null,
         creator_id: user.id,
         published_at: new Date().toISOString(),
       });
 
       if (insertError) {
-        console.error("Insert error:", insertError);
         throw insertError;
       }
 
@@ -144,7 +131,6 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
       setSelectedFiles([]);
       onClose();
     } catch (error: any) {
-      console.error("Form submission error:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -192,7 +178,7 @@ export function CreatePostForm({ isOpen, onClose }: CreatePostFormProps) {
             />
 
             <div className="space-y-4">
-              <FormLabel className="text-foreground">Media (up to 5 files)</FormLabel>
+              <FormLabel className="text-foreground">Media (optional, up to 5 files)</FormLabel>
               <Input
                 type="file"
                 accept="image/*,video/*"
